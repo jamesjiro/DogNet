@@ -20,6 +20,7 @@ def pad_tensor(vec, pad, dim):
     return torch.cat([vec, torch.zeros(*pad_size)], dim=dim)
 
 
+# no longer needed with preprocessing transform step in datasets.py
 def pad_collate(batch):
     """
     args:
@@ -51,7 +52,8 @@ def train(epochs=1000, mbsize=64, lr=0.0001):
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.SGD(net.parameters(), lr=lr, momentum=0.9)
 
-    trainloader = DataLoader(train_data, batch_size=mbsize, collate_fn=pad_collate, shuffle=True, num_workers=4)
+    trainloader = DataLoader(train_data, batch_size=mbsize,
+                             shuffle=True, num_workers=4)
     for epoch in range(epochs):
         running_loss = 0.0
         for i, data in enumerate(trainloader):

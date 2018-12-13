@@ -8,6 +8,19 @@ from skimage import io, transform
 from torchvision import transforms, utils
 from torch.utils.data import Dataset, DataLoader
 
+
+# normalization transform for Inception v3 model
+# (see https://pytorch.org/docs/stable/torchvision/models.html)
+normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
+                                     std=[0.229, 0.224, 0.225])
+# preprocessing transform taken from imagenet example
+transform = transform.Compose(
+    [transforms.RandomSizedCrop(299),
+     transforms.RandomHorizontalFlip(),
+     transforms.ToTensor(),
+     normalize,
+    ])
+
 class DogDataset(Dataset):
 
     def __init__(self, data_mat, data_dir):
@@ -25,6 +38,8 @@ class DogDataset(Dataset):
         mat = sio.loadmat(os.path.join(self.list_dir, data_mat))
         #file list
         self.data_set = mat['file_list']
+        # transform for preprocessing
+        self.transform = transform
         #mapping of dog breeds to numbers (0-119)
         self.label_mapping = {}
         #counter for adding new dog breeds
@@ -40,7 +55,7 @@ class DogDataset(Dataset):
         annotation_file = os.path.join(self.annot_dir, item.replace(".jpg", ""))
         source, label = self.parse_annotation(annotation_file)
         sample = {'image': image, 'label': label}
-        image_tensor = torch.FloatTensor(image)
+        sample = self.transform(sample)
         return image_tensor, label
 
     def parse_annotation(self, annotation_file):
