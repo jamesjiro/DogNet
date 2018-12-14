@@ -15,20 +15,11 @@ class Dog_Net(nn.Module):
         model.fc = nn.Linear(num_ftrs, 1024)
         model.eval()
         self.inception = model
-
-        # #first fully connected linear layer
-        # self.fc1 = nn.Linear(2048, 1024)
-        # #second fully connected linear layer
-
         self.fc2 = nn.Linear(1024, 120)
-        #softmax
-        # self.softmax = nn.Softmax(120)
 
     def forward(self, x):
         x = self.inception(x)
-        # x = self.fc1(x)
         x = self.fc2(x)
-        # x = nn.Softmax(x)
         return x
 
     def freeze_model_parameters(self, model):

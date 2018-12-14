@@ -53,43 +53,38 @@ class DogDataset(Dataset):
     def __getitem__(self, idx):
         item = self.data_set[idx][0][0]
         img_name = os.path.join(self.img_dir,item)
-        # image = io.imread(img_name)
-        image = Image.open(img_name)
-        # print(image.size)
+        image = Image.open(img_name).convert("RGB")
         image = self.transform(image)
         annotation_file = os.path.join(self.annot_dir, item.replace(".jpg", ""))
-        source, label = self.parse_annotation(annotation_file)
-        # sample = {'image': image, 'label': label}
-        # image_tensor = torch.FloatTensor(image)
-
-        sample = {'image': image, 'label': label}
-
-        # sample = self.transform(sample)
-        # image_tensor = self.transform(image)
-        # image_tensor = image_tensor.permute(2, 0, 1)
-        # return image_tensor, label
+        source, label, annotation_file = self.parse_annotation(annotation_file)
+        sample = {'image': image, 'label': label, 'file': annotation_file}
         return sample
 
+    def populate_labels(self):
+        for subdir in os.listdir(self.annot_dir):
+            subdir_path = os.path.join(self.annot_dir, subdir)
+            for file in os.listdir(subdir_path):
+                file_path = os.path.join(subdir_path, file)
+                self.parse_annotation(file_path)
+
     def parse_annotation(self, annotation_file):
-        source = ""
-        label = ""
         f = open(annotation_file, 'r')
         for line in f:
             if "<database>" in line:
                 for item in line.split("</database>"):
                     if "<database>" in item:
-                        source = item[item.find("<database>") + len("<database"):]
+                        source = item[item.find("<database>") + len("<database>"):]
             if "<name>" in line:
                 for item in line.split("</name>"):
                     if "<name>" in item:
                         label = item[item.find("<name>") + len("<name>"):]
-            if label in self.label_mapping:
-                label_number = self.label_mapping[label]
-            else:
-                label_number = self.counter
-                self.label_mapping[label] = self.counter
-                self.counter += 1
-        return source, label_number
+                        if label in self.label_mapping:
+                            label_number = self.label_mapping[label]
+                        else:
+                            label_number = self.counter
+                            self.label_mapping[label] = self.counter
+                            self.counter += 1
+        return source, label_number, annotation_file
 
 
 
@@ -97,16 +92,7 @@ if __name__ == "__main__":
     train_set = DogDataset('train_list.mat', 'data')
     fig = plt.figure()
     for i in range(len(train_set)):
-        sample, label= train_set[i]
-        if sample.shape[2] != 3:
+        sample = train_set[i]
+        if sample['image'].shape[0] != 3:
             print("NOT RGB BROH")
-        print(i, sample.shape, label)
-        # print(sample['image'])
-        # ax = plt.subplot(1, 4, i + 1)
-        # plt.tight_layout()
-        # ax.set_title('sample#{}, breed:{}, source:{}'.format(i, sample['label'], sample['source']))
-        # ax.axis('off')
-        #
-        # if i == 3:
-        #     plt.show()
-        #     break
+            print(i, sample['image'].shape, sample['file'])
