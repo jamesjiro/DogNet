@@ -83,6 +83,7 @@ def train(epochs=5000, mbsize=64, lr=0.0001):
                 loader = train_loader
             else:
                 loader = val_loader
+                net.eval()
 
             running_loss = 0.0
             running_corrects = 0
