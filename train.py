@@ -1,6 +1,7 @@
 import torch
 import time
 import copy
+import json
 import torch.optim as optim
 from net import Dog_Net
 from datasets import DogDataset
@@ -53,12 +54,14 @@ def train(epochs=5000, mbsize=64, lr=0.0001):
     top5 = AverageMeter()
     end = time.time()
 
-    net = Dog_Net().cuda()
+    net = Dog_Net()
     # net.eval()
     train_data = DogDataset('train_list.mat', 'data', True)
-    test_data = DogDataset('test_list.mat', 'data', False)
     train_data.populate_labels()
-    test_data.populate_labels()
+    with open('label_mapping.json', 'w') as outfile:
+        json.dump(train_data.label_mapping, outfile)
+    test_data = DogDataset('test_list.mat', 'data', False, label_mapping=train_data.label_mapping)
+    # test_data.populate_labels()
     dataset_sizes = {'train': len(train_data), 'val': len(test_data)}
     criterion = nn.CrossEntropyLoss().cuda()
     optimizer = optim.SGD(net.parameters(), lr=lr, momentum=0.9)
