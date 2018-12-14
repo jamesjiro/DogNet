@@ -14,7 +14,7 @@ from PIL import Image
 
 class DogDataset(Dataset):
 
-    def __init__(self, data_mat, data_dir, train=True):
+    def __init__(self, data_mat, data_dir, train=True, label_mapping=None):
         # normalization transform for Inception v3 model
         # (see https://pytorch.org/docs/stable/torchvision/models.html)
         normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
@@ -52,7 +52,10 @@ class DogDataset(Dataset):
         # transform for preprocessing
         self.transform = transform
         #mapping of dog breeds to numbers (0-119)
-        self.label_mapping = {}
+        if label_mapping:
+            self.label_mapping = label_mapping
+        else:
+            self.label_mapping = {}
         #counter for adding new dog breeds
         self.counter = 0
 
