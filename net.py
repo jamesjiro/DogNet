@@ -12,8 +12,8 @@ class Dog_Net(nn.Module):
         model = models.inception_v3(pretrained=True)
         self.freeze_model_parameters(model)
         num_ftrs = model.fc.in_features
-        model.fc = nn.Linear(num_ftrs, 1024)
         model.eval()
+        model.fc = nn.Linear(num_ftrs, 1024)
         self.inception = model
         self.fc2 = nn.Linear(1024, 120)
 

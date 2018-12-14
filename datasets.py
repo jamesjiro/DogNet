@@ -14,17 +14,26 @@ from PIL import Image
 
 class DogDataset(Dataset):
 
-    def __init__(self, data_mat, data_dir):
+    def __init__(self, data_mat, data_dir, train=True):
         # normalization transform for Inception v3 model
         # (see https://pytorch.org/docs/stable/torchvision/models.html)
         normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
                                              std=[0.229, 0.224, 0.225])
-        # preprocessing transform taken from imagenet example
-        transform = transforms.Compose(
-            [transforms.RandomResizedCrop(299),
-             transforms.RandomHorizontalFlip(),
-             transforms.ToTensor(),
-             normalize,
+        if train:
+            # transform taken from imagenet example for training
+            transform = transforms.Compose([
+                transforms.RandomResizedCrop(299),
+                transforms.RandomHorizontalFlip(),
+                transforms.ToTensor(),
+                normalize,
+            ])
+        else:
+            # transform for testing
+            transform = transforms.Compose([
+                transforms.Resize(299),
+                transforms.CenterCrop(299),
+                transforms.ToTensor(),
+                normalize,
             ])
         # root directory
         dir_path = os.path.dirname(os.path.realpath(__file__))
