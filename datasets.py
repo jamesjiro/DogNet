@@ -7,10 +7,25 @@ import matplotlib.pyplot as plt
 from skimage import io, transform
 from torchvision import transforms, utils
 from torch.utils.data import Dataset, DataLoader
+import torchvision.transforms as transforms
+from PIL import Image
+
+
 
 class DogDataset(Dataset):
 
     def __init__(self, data_mat, data_dir):
+        # normalization transform for Inception v3 model
+        # (see https://pytorch.org/docs/stable/torchvision/models.html)
+        normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
+                                             std=[0.229, 0.224, 0.225])
+        # preprocessing transform taken from imagenet example
+        transform = transforms.Compose(
+            [transforms.RandomResizedCrop(299),
+             transforms.RandomHorizontalFlip(),
+             transforms.ToTensor(),
+             normalize,
+            ])
         # root directory
         dir_path = os.path.dirname(os.path.realpath(__file__))
         # data directory
@@ -25,6 +40,8 @@ class DogDataset(Dataset):
         mat = sio.loadmat(os.path.join(self.list_dir, data_mat))
         #file list
         self.data_set = mat['file_list']
+        # transform for preprocessing
+        self.transform = transform
         #mapping of dog breeds to numbers (0-119)
         self.label_mapping = {}
         #counter for adding new dog breeds
@@ -36,12 +53,23 @@ class DogDataset(Dataset):
     def __getitem__(self, idx):
         item = self.data_set[idx][0][0]
         img_name = os.path.join(self.img_dir,item)
-        image = io.imread(img_name)
+        # image = io.imread(img_name)
+        image = Image.open(img_name)
+        # print(image.size)
+        image = self.transform(image)
+        print(image.shape)
         annotation_file = os.path.join(self.annot_dir, item.replace(".jpg", ""))
         source, label = self.parse_annotation(annotation_file)
+        # sample = {'image': image, 'label': label}
+        # image_tensor = torch.FloatTensor(image)
+
         sample = {'image': image, 'label': label}
-        image_tensor = torch.FloatTensor(image)
-        return image_tensor, label
+
+        # sample = self.transform(sample)
+        # image_tensor = self.transform(image)
+        # image_tensor = image_tensor.permute(2, 0, 1)
+        # return image_tensor, label
+        return sample
 
     def parse_annotation(self, annotation_file):
         source = ""
@@ -70,10 +98,10 @@ if __name__ == "__main__":
     train_set = DogDataset('train_list.mat', 'data')
     fig = plt.figure()
     for i in range(len(train_set)):
-        sample = train_set[i]
-        if sample['image'].shape[2] != 3:
+        sample, label= train_set[i]
+        if sample.shape[2] != 3:
             print("NOT RGB BROH")
-        print(i, sample['image'].shape, sample['label'], sample['source'])
+        print(i, sample.shape, label)
         # print(sample['image'])
         # ax = plt.subplot(1, 4, i + 1)
         # plt.tight_layout()
