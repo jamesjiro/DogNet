@@ -50,7 +50,7 @@ def freeze_model_parameters(model):
         for param in child.parameters():
             param.requires_grad = False
 
-def train(epochs=1000, mbsize=3, lr=0.0001):
+def train(epochs=100, mbsize=64, lr=0.0001):
 
     net = Dog_Net()
     # net.eval()
@@ -80,6 +80,7 @@ def train(epochs=1000, mbsize=3, lr=0.0001):
     for epoch in range(epochs):
         running_loss = 0.0
         for i, data in enumerate(trainloader):
+            print("training on batch {}".format(i))
             inputs = data['image']
             labels = data['label']
             # inputs, labels = data

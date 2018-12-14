@@ -28,7 +28,7 @@ class Dog_Net(nn.Module):
         x = self.inception(x)
         # x = self.fc1(x)
         x = self.fc2(x)
-        x = nn.Softmax(x)
+        # x = nn.Softmax(x)
         return x
 
     def freeze_model_parameters(self, model):

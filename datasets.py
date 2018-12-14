@@ -57,7 +57,6 @@ class DogDataset(Dataset):
         image = Image.open(img_name)
         # print(image.size)
         image = self.transform(image)
-        print(image.shape)
         annotation_file = os.path.join(self.annot_dir, item.replace(".jpg", ""))
         source, label = self.parse_annotation(annotation_file)
         # sample = {'image': image, 'label': label}
