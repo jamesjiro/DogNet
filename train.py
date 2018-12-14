@@ -135,17 +135,26 @@ def train(epochs=2000, mbsize=64, lr=0.0001):
                 running_loss += loss.item() * inputs.size(0)
                 running_corrects += torch.sum(preds == labels.data)
 
+                del preds, loss, output, inputs, labels
 
             epoch_loss = running_loss / dataset_sizes[phase]
             epoch_acc = running_corrects.double() / dataset_sizes[phase]
+
+            del running_loss, running_corrects
 
             print('{} Loss: {:.4f} Acc: {:.4f}'.format(
                 phase, epoch_loss, epoch_acc))
 
             # deep copy the model
+            """
             if phase == 'val' and epoch_acc > best_acc:
                 best_acc = epoch_acc
                 best_model_wts = copy.deepcopy(net.state_dict())
+            """
+
+        del epoch_loss, epoch_acc
+        torch.cuda.empty_cache()
+        time.sleep(5)
 
         if epoch % 200 == 199:
             torch.save(best_model_wts, "trained_net/checkpoint{}.path.tar")
