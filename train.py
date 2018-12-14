@@ -145,7 +145,7 @@ def train(epochs=2000, mbsize=64, lr=0.0001):
                 best_model_wts = copy.deepcopy(net.state_dict())
 
         if epoch % 200 == 199:
-            torch.save(net.state_dict(), "trained_net/checkpoint{}.path.tar")
+            torch.save(best_model_wts, "trained_net/checkpoint{}.path.tar")
 
 if __name__ == '__main__':
     train()
