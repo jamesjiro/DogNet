@@ -55,7 +55,7 @@ def train(epochs=2000, mbsize=64, lr=0.0001):
     test_data.populate_labels()
     dataset_sizes = {'train': len(train_data), 'val': len(test_data)}
     criterion = nn.CrossEntropyLoss().cuda()
-    optimizer = optim.SGD(net.fc2.parameters(), lr=lr, momentum=0.9)
+    optimizer = optim.SGD(net.parameters(), lr=lr, momentum=0.9)
     exp_lr_scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=30, gamma=0.1)
     train_loader = DataLoader(train_data, batch_size=mbsize, shuffle=True,
                              num_workers=4, pin_memory=True)
