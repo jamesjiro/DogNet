@@ -1,0 +1,26 @@
+Welcome to DogNet
+
+In order to train the network and test the trained network you should download
+the Stanford Dogs Dataset into the project directory in a new directory, "data"
+and extract the files there. The file "checkpoint39.path.tar" is our checkpointed
+neural network after training for 40 epochs.
+
+dog-net---+---net.py
+          |
+          +---checkpoint39.path.tar
+          |
+          +---test.py
+          |
+          +---datasets.py
+          |
+          +---train.py
+          |
+          +---label_mapping.json
+          |
+          +---confusion_array.npy
+          |
+          +---data----+----Images
+                      |
+                      +----Annotation
+                      |
+                      +----lists

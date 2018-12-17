@@ -46,7 +46,7 @@ def freeze_model_parameters(model):
         for param in child.parameters():
             param.requires_grad = False
 
-def train(epochs=5000, mbsize=64, lr=0.0001):
+def train(epochs=60, mbsize=32, lr=0.001):
     batch_time = AverageMeter()
     data_time = AverageMeter()
     losses = AverageMeter()
@@ -54,18 +54,19 @@ def train(epochs=5000, mbsize=64, lr=0.0001):
     top5 = AverageMeter()
     end = time.time()
 
-    net = Dog_Net()
+    net = Dog_Net().cuda()
     # net.eval()
     train_data = DogDataset('train_list.mat', 'data', True)
     train_data.populate_labels()
     with open('label_mapping.json', 'w') as outfile:
         json.dump(train_data.label_mapping, outfile)
-    test_data = DogDataset('test_list.mat', 'data', False, label_mapping=train_data.label_mapping)
+    test_data = DogDataset('test_list.mat', 'data', False,
+                           label_mapping=train_data.label_mapping)
     # test_data.populate_labels()
     dataset_sizes = {'train': len(train_data), 'val': len(test_data)}
     criterion = nn.CrossEntropyLoss().cuda()
     optimizer = optim.SGD(net.parameters(), lr=lr, momentum=0.9)
-    exp_lr_scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=30, gamma=0.1)
+    exp_lr_scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=7, gamma=0.1)
     train_loader = DataLoader(train_data, batch_size=mbsize, shuffle=True,
                              num_workers=4, pin_memory=True)
     val_loader = DataLoader(test_data, batch_size=mbsize, shuffle=True,
@@ -80,13 +81,13 @@ def train(epochs=5000, mbsize=64, lr=0.0001):
         print('-' * 20)
 
         # Each epoch has a training and validation phase
-        for phase in ['train', 'val']:
+        for phase in ['train']:
             if phase == 'train':
                 exp_lr_scheduler.step()
                 loader = train_loader
             else:
                 loader = val_loader
-                net.eval()
+                # net.eval()
 
             running_loss = 0.0
             running_corrects = 0
@@ -153,8 +154,8 @@ def train(epochs=5000, mbsize=64, lr=0.0001):
                 best_acc = epoch_acc
                 best_model_wts = copy.deepcopy(net.state_dict())
 
-        if epoch % 200 == 199:
-            torch.save(best_model_wts, "trained_net/checkpoint{}.path.tar")
+        if epoch % 10 == 9:
+            torch.save(net.state_dict(), "trained_net/checkpoint{}.path.tar".format(epoch))
 
 if __name__ == '__main__':
     train()

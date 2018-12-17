@@ -101,7 +101,7 @@ class DogDataset(Dataset):
 
 
 if __name__ == "__main__":
-    train_set = DogDataset('train_list.mat', 'data')
+    train_set = DogDataset('train_list.mat', 'data', False)
     fig = plt.figure()
     for i in range(len(train_set)):
         sample = train_set[i]
